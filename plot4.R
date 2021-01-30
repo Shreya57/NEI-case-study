@@ -1,0 +1,10 @@
+library(dplyr)
+library(ggplot2)
+NEI <- readRDS("summarySCC_PM25.rds")
+SCC <- readRDS("Source_Classification_Code.rds")
+
+coal_SCC <- SCC %>% filter(grepl("coal", EI.Sector, ignore.case=TRUE)) %>% select(SCC)
+yearwise_emissions <- NEI %>% filter(SCC %in% coal_SCC$SCC) %>% group_by(year) %>% summarize(total_emissions = sum(Emissions))
+yearwise_emissions$year <- as.factor(yearwise_emissions$year)
+ggplot(yearwise_emissions, aes(x=year, y=total_emissions)) + geom_bar(stat="identity") + labs(x="Year", y="PM2.5 Emissions (tons)") + ggtitle("Emissions from Coal Combustion-related Sources in US")
+ggsave('plot4.png')
